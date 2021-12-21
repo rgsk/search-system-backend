@@ -9,7 +9,8 @@
     "start": "node --experimental-specifier-resolution=node dist",
     "build": "tsc",
     "dev": "nodemon --experimental-specifier-resolution=node dist",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "cpp": "yarn install"
   },
   "dependencies": {
     "algoliasearch": "^4.11.0",
