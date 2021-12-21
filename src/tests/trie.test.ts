@@ -3,14 +3,14 @@ import { countriesService } from "../services/countries.service";
 import { trieCpp } from "../trieCpp";
 import fs from "fs";
 import path from "path";
-const filePath = path.join(__dirname, "..", "..", "input.txt");
+const filePath = path.join(path.resolve(), "input.txt");
 // console.log(filePath);
 export class TrieTest {
   trie: Trie;
   constructor() {
     this.trie = new Trie();
   }
-  main() {
+  async main() {
     const names = [
       "Rahul",
       "Mehak",
@@ -21,14 +21,15 @@ export class TrieTest {
       "Rama",
       "Ramaan Gupta",
     ];
-    for (let name of names) {
-      this.trie.insert(name);
-    }
+    // for (let name of names) {
+    //   this.trie.insert(name);
+    // }
+    await this.trie.insertAll(names);
     console.log(this.trie.search("Rahul"));
     console.log(this.trie.startsWith("Rah"));
     console.log(this.trie.startsWith("Rahy"));
     console.log(this.trie.search("Rahu"));
-    console.log(this.trie.getMatchesWithGivenPrefix("Ra"));
+    console.log(await this.trie.getMatchesWithGivenPrefix("R"));
   }
   async merge() {
     const trie1 = new Trie();

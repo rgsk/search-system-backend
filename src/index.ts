@@ -5,7 +5,8 @@ import { TrieTest } from "./tests/trie.test";
 import { countriesRouter } from "./routes/countries.route";
 import { countriesService } from "./services/countries.service";
 import { db } from "./db";
-
+import { constants } from "./constants";
+constants;
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -20,7 +21,7 @@ const PORT = process.env.PORT;
 app.listen(PORT, async () => {
   // await populateDatabase();
   // await countriesService.cpp.loadDataIntoCountriesTrie();
-  // testing();
+  await testing();
   // await populateCountryNamesTable();
   const prefix = "Ra";
   // const res = await db.raw(`select name from countryNames where name like ?`, [
@@ -63,8 +64,8 @@ const populateCountryNamesTable = async () => {
   // } while (!finished);
   // console.log("finished populating data from text file to db");
 };
-const testing = () => {
+const testing = async () => {
   const trieTest = new TrieTest();
-  // trieTest.main();
-  trieTest.cpp();
+  await trieTest.main();
+  // trieTest.cpp();
 };

@@ -4,13 +4,9 @@ import path from "path";
 import lineReader from "line-reader";
 import { Trie } from "../Datastructures/Trie/Trie";
 import { trieCpp } from "../trieCpp";
-const {
-  Worker,
-  isMainThread,
-  parentPort,
-  workerData,
-} = require("worker_threads");
-const allCountriesTxtFilePath = path.join(__dirname, "../../allCountries.txt");
+
+const allCountriesTxtFilePath = path.join(path.resolve(), "allCountries.txt");
+// console.log(allCountriesTxtFilePath);
 let allCountriesTxtReader: Reader;
 lineReader.open(allCountriesTxtFilePath, (err, reader) => {
   allCountriesTxtReader = reader;
@@ -152,56 +148,13 @@ export const countriesService = {
   },
   loadDataIntoCountriesTrie: async () => {
     countriesTrie = new Trie();
-    const countries: Country[] = await db
+    const countries: Partial<Country>[] = await db
       .select("name")
       .from(Country.tableName)
       .limit(1000);
     // console.log(countries);
-    if (isMainThread) {
-      const threadCount = 5;
-      const range = Math.floor(countries.length / threadCount);
-      const threads = new Set();
-      let start = 0;
-      for (let i = 1; i < threadCount; i++) {
-        threads.add(
-          new Worker(__filename, { workerData: { start, end: start + range } })
-        );
-        start += range;
-      }
-      threads.add(
-        new Worker(__filename, {
-          workerData: {
-            start,
-            end: start + range + (countries.length % threadCount),
-          },
-        })
-      );
 
-      let worker: any;
-      for (worker of threads) {
-        worker.on("error", (err) => {
-          throw err;
-        });
-        worker.on("exit", () => {
-          threads.delete(worker);
-          console.log(`Thread exiting, ${threads.size} running...`);
-          if (threads.size === 0) {
-            // console.log(matches.join("\n"));
-          }
-        });
-        worker.on("message", (msg) => {
-          countriesTrie.merge(msg);
-        });
-      }
-    } else {
-      for (let i = workerData.start; i < workerData.end; i++) {
-        countriesTrie.insert(countries[i].name);
-      }
-      parentPort.postMessage(countriesTrie);
-    }
-    for (let i = 0; i < countries.length; i++) {
-      countriesTrie.insert(countries[i].name);
-    }
+    countriesTrie.insertAll(countries.map((c) => c.name!));
     return {
       message: "populated countryTrie with country names",
       totalRows: countries.length,

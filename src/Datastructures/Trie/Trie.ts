@@ -1,11 +1,9 @@
 import { Node } from "./Node";
-const {
-  Worker,
-  isMainThread,
-  parentPort,
-  workerData,
-} = require("worker_threads");
-import path from "path";
+import { fileURLToPath } from "url";
+
+import { Worker, isMainThread, parentPort, workerData } from "worker_threads";
+const fileName = fileURLToPath(import.meta.url);
+// console.log(fileName);
 export class Trie {
   private root: Node;
   constructor() {
@@ -43,7 +41,7 @@ export class Trie {
   }
   async getMatchesWithGivenPrefix(prefix: string) {
     let matches: string[] = [];
-    let queue: [string, Node][] = [];
+    const queue: [string, Node][] = [];
     let node = this.root;
     for (let i = 0; i < prefix.length; i++) {
       if (!node.containsKey(prefix[i])) {
@@ -55,38 +53,102 @@ export class Trie {
     for (let key of node.getKeys()) {
       queue.push([prefix + key, node.get(key)]);
     }
-    console.log(queue);
-    const promises: Promise<unknown>[] = [];
-    while (queue.length) {
-      const [curString, curNode] = queue.shift()!;
-      promises.push(generateMatchesWithWorker(curString, curNode));
-    }
+    const promise = new Promise((resolve, reject) => {
+      if (isMainThread) {
+        const threads = new Set();
+        while (queue.length) {
+          const [curString, curNode] = queue.shift()!;
+          threads.add(
+            new Worker(fileName, { workerData: { curNode, curString } })
+          );
+        }
 
-    const results = await promises[0];
-    console.log(results);
-    console.log("hiii fdsfdsfdsds");
-    console.log(matches);
+        let worker: any;
+        for (worker of threads) {
+          worker.on("error", (err) => {
+            throw err;
+          });
+          worker.on("exit", () => {
+            threads.delete(worker);
+            console.log(`Thread exiting, ${threads.size} running...`);
+            if (threads.size === 0) {
+              // console.log(primes.join("\n"));
+              resolve(matches);
+            }
+          });
+          worker.on("message", (msg) => {
+            matches = matches.concat(msg);
+          });
+        }
+      } else {
+        const threadMatches = generateMatches(
+          workerData.curString,
+          workerData.curNode
+        );
+        parentPort!.postMessage(threadMatches);
+      }
+    });
+
+    await promise;
     return matches;
   }
   merge(trie: Trie) {
     this.root.merge(trie.root);
     return this;
   }
+  async insertAll(words: string[]) {
+    if (isMainThread) {
+      const process = new Promise((resolve, reject) => {
+        const max = words.length;
+        const threadCount = 5;
+        const threads = new Set();
+        console.log(`Running with ${threadCount} threads...`);
+        const range = Math.ceil(max / threadCount);
+        let start = 0;
+        for (let i = 0; i < threadCount - 1; i++) {
+          const myStart = start;
+          threads.add(
+            new Worker(fileName, {
+              workerData: { start: myStart, range },
+            })
+          );
+          start += range;
+        }
+        threads.add(
+          new Worker(fileName, {
+            workerData: {
+              start,
+              range: range + (max % threadCount),
+            },
+          })
+        );
+        let worker: any;
+        for (worker of threads) {
+          worker.on("error", (err) => {
+            throw err;
+          });
+          worker.on("exit", () => {
+            threads.delete(worker);
+            console.log(`Thread exiting, ${threads.size} running...`);
+            if (threads.size === 0) {
+              resolve("populated");
+            }
+          });
+          worker.on("message", (msg) => {
+            this.merge(msg);
+          });
+        }
+      });
+      await process;
+    } else {
+      const workerTrie = new Trie();
+      workerTrie.insertAll(words.slice(workerData.start, workerData.end));
+      parentPort!.postMessage(workerTrie);
+    }
+  }
 }
-const generateMatchesWithWorker = (curString: string, curNode: Node) => {
-  return new Promise((resolve, reject) => {
-    let worker = new Worker(path.join(__dirname, "worker.js"));
-    // wait for a message and resolve
-    worker.on("message", ({ data }) => resolve(data));
-    // if we get an error, reject
-    worker.onerror = reject;
-    // post a message to the worker
-    worker.postMessage(generateMatches(curString, curNode));
-  });
-};
+
 const generateMatches = (curString: string, curNode: Node) => {
-  // console.log(curString);
-  // only main thread console.log will work
   const matches: string[] = [];
   const queue: [string, Node][] = [];
   queue.push([curString, curNode]);
