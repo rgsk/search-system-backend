@@ -1,0 +1,30 @@
+{
+  "name": "assignment_server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "gypfile": true,
+  "scripts": {
+    "start": "node dist",
+    "build": "tsc",
+    "dev": "nodemon dist",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "algoliasearch": "^4.11.0",
+    "child_process": "^1.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.2",
+    "knex": "^0.95.14",
+    "line-reader": "^0.4.0",
+    "node-addon-api": "^4.2.0",
+    "pg": "^8.7.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/line-reader": "^0.0.34",
+    "typescript": "^4.5.4"
+  }
+}

@@ -1,0 +1,9 @@
+// remote
+PORT=8000
+POSTGRES_CONNECTION_URL=postgres://xwakzewb:zxlW9R3U3Yu4LG-YZiKoTVgq6goSEeeF@queenie.db.elephantsql.com/xwakzewb
+
+// local 
+PORT=8000
+POSTGRES_CONNECTION_URL=postgres://postgres:password@localhost:5432/knex-notes
+
+// growth-school-trie-assignment-server
