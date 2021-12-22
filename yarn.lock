@@ -459,6 +459,11 @@ is-core-module@^2.2.0:
   dependencies:
     has "^1.0.3"
 
+jstreemap@^1.28.2:
+  version "1.28.2"
+  resolved "https://registry.yarnpkg.com/jstreemap/-/jstreemap-1.28.2.tgz#fe884994039e5ee23a157cf7ddd6c01c3a6d134d"
+  integrity sha512-JYVDYwLat+OVXLpIXgUPy06wPSEkQafGOeotpGFodkM5+K8x3IrVPGaTw+Fd9MmZy092cLG/N+3q90oSBHZoQQ==
+
 knex@^0.95.14:
   version "0.95.14"
   resolved "https://registry.yarnpkg.com/knex/-/knex-0.95.14.tgz#47eca7757cbc5872b7c9a3c67ae3b7ac6d00cf10"

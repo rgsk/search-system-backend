@@ -4,6 +4,7 @@ import path from "path";
 import lineReader from "line-reader";
 import { Trie } from "../Datastructures/Trie/Trie";
 import { trieCpp } from "../trieCpp";
+import { TreeSet } from "jstreemap";
 
 const allCountriesTxtFilePath = path.join(path.resolve(), "allCountries.txt");
 // console.log(allCountriesTxtFilePath);
@@ -12,6 +13,7 @@ lineReader.open(allCountriesTxtFilePath, (err, reader) => {
   allCountriesTxtReader = reader;
 });
 let countriesTrie = new Trie();
+let countriesSet = new TreeSet<string>();
 //
 export const countriesService = {
   getAll: async ({ page, limit }: { page: number; limit: number }) => {
@@ -36,6 +38,43 @@ export const countriesService = {
   count: async () => {
     const count = await db(Country.tableName).count("uuid");
     return +count[0].count;
+  },
+  treeSet: {
+    loadDataIntoCountriesSet: async () => {
+      const countries = await countriesService.fetchNumCountriesFromDB();
+      // console.log(countries);
+
+      const countryNames = countries.map((c) => c.name);
+      console.log("populating set");
+      for (let name of countryNames) {
+        countriesSet.add(name);
+      }
+      console.log("finished populating set");
+    },
+    getCountriesWithPrefix: async ({
+      prefix,
+      page,
+      limit,
+      all,
+    }: {
+      prefix: string;
+      page: number;
+      limit: number;
+      all: boolean;
+    }) => {
+      const matches: string[] = [];
+      let upper =
+        prefix.substring(0, prefix.length - 1) +
+        String.fromCharCode(prefix[prefix.length - 1].charCodeAt(0) + 1);
+      for (
+        let it = countriesSet.lowerBound(prefix);
+        !it.equals(countriesSet.upperBound(upper));
+        it.next()
+      ) {
+        matches.push(it.key);
+      }
+      return matches;
+    },
   },
   dbAssistance: {
     populateCountryNamesFromCountriesTable: async () => {
@@ -225,11 +264,9 @@ export const countriesService = {
     await db(Country.tableName).insert(fetchedCountries);
     return false;
   },
-  fetchNumCountriesFromDB: async (num: number) => {
-    const countries: Country[] = await db
-      .select("name", "name_alt")
-      .from(Country.tableName)
-      .limit(num);
+  fetchNumCountriesFromDB: async (num: number = 0) => {
+    const countries: Country[] = await db.select("name").from("countries");
+    // .limit(num);
     return countries;
   },
 

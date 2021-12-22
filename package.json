@@ -18,6 +18,7 @@
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.2",
+    "jstreemap": "^1.28.2",
     "knex": "^0.95.14",
     "line-reader": "^0.4.0",
     "node-addon-api": "^4.2.0",

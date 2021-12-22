@@ -23,6 +23,23 @@ export const countriesController = {
         all,
       });
     res.json({
+      total: countries.length,
+      [Country.tableName]: countries,
+    });
+  },
+  async getCountriesWithPrefixUsingTreeSet(req: Request, res: Response) {
+    const prefix = (req.query.name as string) || "";
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const all = !!req.query.all;
+    const countries = await countriesService.treeSet.getCountriesWithPrefix({
+      prefix,
+      page,
+      limit,
+      all,
+    });
+    res.json({
+      total: countries.length,
       [Country.tableName]: countries,
     });
   },

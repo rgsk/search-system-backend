@@ -23,7 +23,7 @@ app.listen(PORT, async () => {
   // await countriesService.cpp.loadDataIntoCountriesTrie();
   // await testing();
   // await populateCountryNamesTable();
-  const prefix = "Ra";
+  // const prefix = "Ra";
   // const res = await db.raw(`select name from countryNames where name like ?`, [
   //   `\\'${prefix}\\%\\'`,
   // ]);
@@ -34,7 +34,10 @@ app.listen(PORT, async () => {
   //   `${prefix}%`,
   // ]);
   // console.log(res.rows);
+  // await testing();
+
   console.log("listening on PORT: " + PORT);
+  await countriesService.treeSet.loadDataIntoCountriesSet();
 });
 const populateDatabase = async () => {
   await countriesService.dropTableIfExists();
@@ -66,6 +69,7 @@ const populateCountryNamesTable = async () => {
 };
 const testing = async () => {
   const trieTest = new TrieTest();
-  await trieTest.main();
+  // await trieTest.main();
   // trieTest.cpp();
+  await trieTest.set();
 };

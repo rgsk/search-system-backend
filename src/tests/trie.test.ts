@@ -3,6 +3,7 @@ import { countriesService } from "../services/countries.service";
 import { trieCpp } from "../trieCpp";
 import fs from "fs";
 import path from "path";
+import { TreeSet } from "jstreemap";
 const filePath = path.join(path.resolve(), "input.txt");
 // console.log(filePath);
 export class TrieTest {
@@ -62,5 +63,35 @@ export class TrieTest {
     // console.log(trieCpp.getMatches("m"));
     // console.log(trieCpp.getMatches("am"));
     // console.log(trieCpp.getMatches("raman"));
+  }
+  async set() {
+    let set = new TreeSet();
+    // const names = [
+    //   "Rahul",
+    //   "Mehak",
+    //   "Aman",
+    //   "Pankaj",
+    //   "Manu",
+    //   "Vishesh",
+    //   "Rama",
+    //   "Ramaan Gupta",
+    // ];
+    const countries = await countriesService.fetchNumCountriesFromDB(1000000);
+    // console.log(countries);
+    const countryNames = countries.map((c) => c.name);
+    for (let name of countryNames) {
+      set.add(name);
+    }
+    let prefix = "Ra";
+    let upper =
+      prefix.substring(0, prefix.length - 1) +
+      String.fromCharCode(prefix[prefix.length - 1].charCodeAt(0) + 1);
+    for (
+      let it = set.lowerBound(prefix);
+      !it.equals(set.upperBound(upper));
+      it.next()
+    ) {
+      console.log(it.key);
+    }
   }
 }
