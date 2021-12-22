@@ -77,25 +77,19 @@ export const countriesService = {
     },
   },
   dbAssistance: {
-    populateCountryNamesFromCountriesTable: async () => {
-      await db.raw(`
-         insert into countryNames 
-          (name)
-          select distinct name from countries;
-      `);
-    },
     dropCountriesNamesTableIfExists: async () => {
-      if (await db.schema.hasTable("countryNames")) {
-        await db.schema.dropTable("countryNames");
-        console.log(`dropped countryNames table`);
+      if (await db.schema.hasTable("names")) {
+        await db.schema.dropTable("names");
+        console.log(`dropped names table`);
       }
     },
     createCountriesNamesTableIfNotExists: async () => {
-      if (!(await db.schema.hasTable("countryNames"))) {
-        await db.schema.createTable("countryNames", (table) => {
-          table.string("name").primary();
+      if (!(await db.schema.hasTable("names"))) {
+        await db.schema.createTable("names", (table) => {
+          table.bigInteger("uuid").primary();
+          table.string("name");
         });
-        console.log(`created countryNames table`);
+        console.log(`created names table`);
       }
     },
     getCountriesWithPrefix: async ({
@@ -109,22 +103,27 @@ export const countriesService = {
       limit: number;
       all: boolean;
     }) => {
-      let query = `select name from countryNames where name like ?`;
+      // select *, count(*) over() from names where name like 'A%' limit 100
+      let query = `select  *, count(*) over() from names where name like ?`;
       if (!all) {
         query += ` offset ${(page - 1) * limit} limit ${limit}`;
       }
       const res = await db.raw(query, [`${prefix}%`]);
-      const names = res.rows.map((v) => v.name);
-      return names;
+      const countries = res.rows.map((c) => {
+        return { uuid: c.uuid, name: c.name };
+      });
+
+      const total = res.rows[0]?.count || 0;
+      return { countries, total };
     },
     populateDatabaseWithNextNumCountries: async (num: number) => {
-      const fetchedCountries: string[] = [];
+      const fetchedCountries: Country[] = [];
       const add = () =>
         new Promise((resolve, reject) => {
           if (allCountriesTxtReader.hasNextLine()) {
             allCountriesTxtReader.nextLine(async (err, line) => {
               const country = processLineFromTextFile(line!);
-              fetchedCountries.push(country.name);
+              fetchedCountries.push(country);
               // console.log(result);
               resolve("fetched the country");
             });
@@ -133,11 +132,13 @@ export const countriesService = {
           }
         });
       const inserIntoDb = async () => {
-        const uniqueNames = [...new Set(fetchedCountries)];
-        const row = uniqueNames.map((v) => ({
-          name: v,
-        }));
-        await db("countryNames").insert(row);
+        const rows = fetchedCountries.map((v) => {
+          return {
+            uuid: v.uuid,
+            name: v.name,
+          };
+        });
+        await db("names").insert(rows);
       };
       for (let i = 0; i < num; i++) {
         try {

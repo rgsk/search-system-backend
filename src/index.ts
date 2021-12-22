@@ -37,7 +37,7 @@ app.listen(PORT, async () => {
   // await testing();
 
   console.log("listening on PORT: " + PORT);
-  await countriesService.treeSet.loadDataIntoCountriesSet();
+  countriesService.treeSet.loadDataIntoCountriesSet();
 });
 const populateDatabase = async () => {
   await countriesService.dropTableIfExists();
@@ -55,7 +55,7 @@ const populateCountryNamesTable = async () => {
   await countriesService.dbAssistance.dropCountriesNamesTableIfExists();
   await countriesService.dbAssistance.createCountriesNamesTableIfNotExists();
   console.log("populating countryNames from coutries table");
-  await countriesService.dbAssistance.populateCountryNamesFromCountriesTable();
+  // await countriesService.dbAssistance.populateCountryNamesFromCountriesTable();
   console.log("finished populating countryNames from coutries table");
   // console.log("populating data from text file to db");
   // let finished;
