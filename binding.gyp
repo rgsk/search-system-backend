@@ -4,7 +4,8 @@
             "target_name": "native",
             "sources": [
                 "binding.cpp",
-                "TrieMultithreaded.cpp"
+                "TrieMultithreaded.cpp",
+                "MultiMap.cpp"
             ],
             "include_dirs": [
                 "<!@(node -p \"require('node-addon-api').include\")"

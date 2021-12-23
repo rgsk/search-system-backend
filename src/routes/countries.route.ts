@@ -9,5 +9,9 @@ countriesRouter.get(
   "/search/treeMap",
   countriesController.getCountriesWithPrefixUsingTreeMap
 );
+countriesRouter.get(
+  "/search/cppMap",
+  countriesController.getCountriesWithPrefixUsingCppMap
+);
 countriesRouter.post("/", countriesController.create);
 countriesRouter.post("/flush", countriesController.flushCountriesTable);

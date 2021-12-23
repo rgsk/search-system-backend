@@ -7,11 +7,20 @@ import methods from "../build/Release/native.node";
 // console.log(test.search("rahu"));
 // console.log(test.getMatches("r"));
 
-export const trieCpp = {
+export const cppHook = {
   populate: (words: string[]) => {
     methods.populate(words);
   },
   getMatches: (prefix: string) => {
     return methods.getMatches(prefix);
+  },
+  populateMap: (names: string[], uuids: number[]) => {
+    // console.log(methods.hello());
+    // console.log(names);
+    // console.log(uuids);
+    methods.populateMap(names, uuids);
+  },
+  getMatchesFromMap: (prefix: string) => {
+    return methods.getMatchesFromMap(prefix);
   },
 };

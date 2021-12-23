@@ -191,5 +191,6 @@ int main() {
   // trie2->insert("rama");
   // countriesTrie->merge(trie2);
   // vector<string> matches = countriesTrie->getMatches("r");
+  cout << "main ran" << endl;
   return 0;
 }

@@ -3,7 +3,7 @@ import { Country } from "../models/Country.model";
 import path from "path";
 import lineReader from "line-reader";
 import { Trie } from "../Datastructures/Trie/Trie";
-import { trieCpp } from "../trieCpp";
+import { cppHook } from "../cppHook";
 import { TreeMultiMap } from "jstreemap";
 
 const allCountriesTxtFilePath = path.join(path.resolve(), "allCountries.txt");
@@ -45,11 +45,11 @@ export const countriesService = {
       const countries = await countriesService.fetchCountriesFromDB();
       // console.log(countries);
 
-      console.log("populating map");
+      console.log("populating jsTreeMap");
       for (let entry of countries) {
         countriesMap.set(entry.name!, +entry.uuid!);
       }
-      console.log("finished populating map");
+      console.log("finished populating jsTreeMap");
     },
     getCountriesWithPrefix: async ({
       prefix,
@@ -88,6 +88,40 @@ export const countriesService = {
       }
       return {
         total: curIndex,
+        countries: matches,
+      };
+    },
+  },
+  cppMap: {
+    loadDataIntoCppMap: async () => {
+      console.log("fetching countries from database");
+      const countries = await countriesService.fetchCountriesFromDB();
+      // console.log(countries);
+
+      console.log("populating cppMap");
+      const names: string[] = [];
+      const uuids: number[] = [];
+      countries.forEach((c) => {
+        names.push(c.name!);
+        uuids.push(c.uuid!);
+      });
+      cppHook.populateMap(names, uuids);
+      console.log("finished populating cppMap");
+    },
+    getCountriesWithPrefix: async ({
+      prefix,
+      page,
+      limit,
+      all,
+    }: {
+      prefix: string;
+      page: number;
+      limit: number;
+      all: boolean;
+    }) => {
+      const matches = cppHook.getMatchesFromMap(prefix);
+      return {
+        total: matches.length,
         countries: matches,
       };
     },

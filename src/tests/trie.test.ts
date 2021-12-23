@@ -1,6 +1,6 @@
 import { Trie } from "../Datastructures/Trie/Trie";
 import { countriesService } from "../services/countries.service";
-import { trieCpp } from "../trieCpp";
+import { cppHook } from "../cppHook";
 import fs from "fs";
 import path from "path";
 import { TreeMultiSet } from "jstreemap";
@@ -44,25 +44,33 @@ export class TrieTest {
     console.log(values);
   }
   async cpp() {
-    const countries = await countriesService.fetchCountriesFromDB();
+    const names = [
+      "Rahul",
+      "Mehak",
+      "Aman",
+      "Pankaj",
+      "Manu",
+      "Vishesh",
+      "Rama",
+      "Ramaan Gupta",
+    ];
+    const uuids = names.map((v) => 324);
+    // const countries = await countriesService.fetchCountriesFromDB();
     // console.log(data);
-    const countryNames = countries.map((c) => c.name);
+    // const countryNames = countries.map((c) => c.name);
     // console.log(countryNames)
     // const data = fs.readFileSync(filePath);
     // console.log(data.toString());
-    var stream = fs.createWriteStream(filePath);
-    stream.once("open", function (fd) {
-      for (let country of countryNames) {
-        stream.write(country + "\n");
-      }
+    // var stream = fs.createWriteStream(filePath);
+    // stream.once("open", function (fd) {
+    //   for (let country of countryNames) {
+    //     stream.write(country + "\n");
+    //   }
 
-      stream.end();
-    });
-    // trieCpp.populate(countryNames);
-    // console.log(trieCpp.getMatches("r"));
-    // console.log(trieCpp.getMatches("m"));
-    // console.log(trieCpp.getMatches("am"));
-    // console.log(trieCpp.getMatches("raman"));
+    //   stream.end();
+    // });
+    cppHook.populateMap(names, uuids);
+    console.log(cppHook.getMatchesFromMap("Ram"));
   }
   async set() {
     let set = new TreeMultiSet();
