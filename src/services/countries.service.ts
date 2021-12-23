@@ -117,17 +117,22 @@ export const countriesService = {
       page,
       limit,
       all,
+      turbo,
     }: {
       prefix: string;
       page: number;
       limit: number;
       all: boolean;
+      turbo: boolean;
     }) => {
-      const matches = cppHook.getMatchesFromMap(prefix);
-      return {
-        total: matches.length,
-        countries: matches,
-      };
+      const result = cppHook.getMatchesFromMap({
+        prefix,
+        page,
+        limit,
+        all,
+        turbo,
+      });
+      return result;
     },
   },
   dbAssistance: {

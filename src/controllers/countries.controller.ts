@@ -41,11 +41,13 @@ export const countriesController = {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const all = req.query.all !== "false";
+    const turbo = req.query.turbo === "true";
     const result = await countriesService.cppMap.getCountriesWithPrefix({
       prefix,
       page,
       limit,
       all,
+      turbo,
     });
     res.json(result);
   },

@@ -10,7 +10,7 @@ vector<string> getMatches(string prefix);
 
 typedef pair<string, long int> entry;
 void populateMap(vector<entry>& countries);
-vector<entry> getMatchesFromMap(string prefix);
+pair<vector<entry>, unsigned int> getMatchesFromMap(string prefix, int page, int limit, bool all, bool turbo);
 
 void PopulateMap(const CallbackInfo& info) {
   Env env = info.Env();
@@ -27,21 +27,34 @@ void PopulateMap(const CallbackInfo& info) {
 
   populateMap(countries);
 }
-Napi::Array GetMatchesFromMap(const CallbackInfo& info) {
+Napi::Object GetMatchesFromMap(const CallbackInfo& info) {
   Env env = info.Env();
   string prefix = info[0].As<Napi::String>();
-  vector<entry> matches = getMatchesFromMap(prefix);
+  int page = info[1].As<Napi::Number>();
+  int limit = info[2].As<Napi::Number>();
+  bool all = info[3].As<Napi::Boolean>();
+  bool turbo = info[4].As<Napi::Boolean>();
+  // cout << prefix << page << limit << all << endl;
 
+  Napi::Object finalResult = Napi::Object::New(env);
+
+  // return finalResult;
+  auto res = getMatchesFromMap(prefix, page, limit, all, turbo);
+  auto matches = res.first;
+
+  auto total = res.second;
   Array returnedMatches = Napi::Array::New(env, matches.size());
   for (int i = 0; i < matches.size(); i++) {
     // Napi::String name = Napi::String::New(env, matches[i].first);
     // Napi::Number uuid = Napi::Number::New(env, matches[i].second);
     Napi::Object country = Napi::Object::New(env);
-    country.Set("name", matches[i].first);
     country.Set("uuid", matches[i].second);
+    country.Set("name", matches[i].first);
     returnedMatches[i] = country;
   }
-  return returnedMatches;
+  finalResult.Set("countries", returnedMatches);
+  finalResult.Set("total", total);
+  return finalResult;
 }
 Napi::Array
 GetMatches(const CallbackInfo& info) {

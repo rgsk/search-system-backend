@@ -70,7 +70,16 @@ export class TrieTest {
     //   stream.end();
     // });
     cppHook.populateMap(names, uuids);
-    console.log(cppHook.getMatchesFromMap("Ram"));
+    // "Ram", 2, 1, true
+    console.log(
+      cppHook.getMatchesFromMap({
+        prefix: "Ra",
+        page: 1,
+        limit: 1,
+        all: true,
+        turbo: true,
+      })
+    );
   }
   async set() {
     let set = new TreeMultiSet();

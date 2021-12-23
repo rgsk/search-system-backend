@@ -20,7 +20,19 @@ export const cppHook = {
     // console.log(uuids);
     methods.populateMap(names, uuids);
   },
-  getMatchesFromMap: (prefix: string) => {
-    return methods.getMatchesFromMap(prefix);
+  getMatchesFromMap: ({
+    prefix,
+    page,
+    limit,
+    all,
+    turbo,
+  }: {
+    prefix: string;
+    page: number;
+    limit: number;
+    all: boolean;
+    turbo: boolean;
+  }) => {
+    return methods.getMatchesFromMap(prefix, page, limit, all, turbo);
   },
 };

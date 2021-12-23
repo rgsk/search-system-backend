@@ -7,6 +7,8 @@
     "iostream": "cpp",
     "xstring": "cpp",
     "vector": "cpp",
-    "utility": "cpp"
+    "utility": "cpp",
+    "xtree": "cpp",
+    "xlocale": "cpp"
   }
 }
