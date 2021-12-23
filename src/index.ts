@@ -21,7 +21,7 @@ const PORT = process.env.PORT;
 app.listen(PORT, async () => {
   // await populateDatabase();
   // await countriesService.cpp.loadDataIntoCountriesTrie();
-  await testing();
+  // await testing();
   // await populateCountryNamesTable();
   // const prefix = "Ra";
   // const res = await db.raw(`select name from countryNames where name like ?`, [

@@ -7,3 +7,5 @@ PORT=8000
 POSTGRES_CONNECTION_URL=postgres://postgres:password@localhost:5432/knex-notes
 
 // growth-school-trie-assignment-server
+
+    "start": "node --experimental-specifier-resolution=node --max-old-space-size=8192 dist",

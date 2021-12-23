@@ -8,6 +8,7 @@ import { TreeMultiMap } from "jstreemap";
 
 const allCountriesTxtFilePath = path.join(path.resolve(), "allCountries.txt");
 // console.log(allCountriesTxtFilePath);
+let countriesFetchedFromDB: Partial<Country>[] | undefined;
 let allCountriesTxtReader: Reader;
 lineReader.open(allCountriesTxtFilePath, (err, reader) => {
   allCountriesTxtReader = reader;
@@ -41,12 +42,14 @@ export const countriesService = {
   },
   treeMap: {
     loadDataIntoCountriesMap: async () => {
-      console.log("fetching countries from database");
-      const countries = await countriesService.fetchCountriesFromDB();
+      if (!countriesFetchedFromDB) {
+        console.log("fetching countries from database");
+        countriesFetchedFromDB = await countriesService.fetchCountriesFromDB();
+      }
       // console.log(countries);
 
       console.log("populating jsTreeMap");
-      for (let entry of countries) {
+      for (let entry of countriesFetchedFromDB) {
         countriesMap.set(entry.name!, +entry.uuid!);
       }
       console.log("finished populating jsTreeMap");
@@ -94,14 +97,15 @@ export const countriesService = {
   },
   cppMap: {
     loadDataIntoCppMap: async () => {
-      console.log("fetching countries from database");
-      const countries = await countriesService.fetchCountriesFromDB();
-      // console.log(countries);
+      if (!countriesFetchedFromDB) {
+        console.log("fetching countries from database");
+        countriesFetchedFromDB = await countriesService.fetchCountriesFromDB();
+      } // console.log(countries);
 
       console.log("populating cppMap");
       const names: string[] = [];
       const uuids: number[] = [];
-      countries.forEach((c) => {
+      countriesFetchedFromDB.forEach((c) => {
         names.push(c.name!);
         uuids.push(c.uuid!);
       });
