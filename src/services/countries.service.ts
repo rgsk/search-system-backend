@@ -37,7 +37,7 @@ export const countriesService = {
     await db(Country.tableName).insert(country);
   },
   count: async () => {
-    const count = await db(Country.tableName).count("uuid");
+    const count = await db("names").count("uuid");
     return +count[0].count;
   },
   treeMap: {
@@ -74,10 +74,10 @@ export const countriesService = {
       let startIndex = (page - 1) * limit;
       let endIndex = page * limit;
       let curIndex = 0;
-
+      const endPtr = countriesMap.upperBound(upper);
       for (
         let it = countriesMap.lowerBound(prefix);
-        !it.equals(countriesMap.upperBound(upper));
+        !it.equals(endPtr); // so that this in not calculated again again
         it.next()
       ) {
         if (all) {

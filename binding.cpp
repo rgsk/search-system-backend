@@ -52,8 +52,8 @@ Napi::Object GetMatchesFromMap(const CallbackInfo& info) {
     country.Set("name", matches[i].first);
     returnedMatches[i] = country;
   }
-  finalResult.Set("countries", returnedMatches);
   finalResult.Set("total", total);
+  finalResult.Set("countries", returnedMatches);
   return finalResult;
 }
 Napi::Array

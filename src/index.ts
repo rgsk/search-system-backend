@@ -38,7 +38,8 @@ app.listen(PORT, async () => {
 
   console.log("listening on PORT: " + PORT);
   // countriesService.treeMap.loadDataIntoCountriesMap();
-  countriesService.cppMap.loadDataIntoCppMap();
+  // countriesService.cppMap.loadDataIntoCppMap();
+  // populateCountryNamesTable();
 });
 const populateDatabase = async () => {
   await countriesService.dropTableIfExists();
@@ -55,16 +56,19 @@ const populateDatabase = async () => {
 const populateCountryNamesTable = async () => {
   await countriesService.dbAssistance.dropCountriesNamesTableIfExists();
   await countriesService.dbAssistance.createCountriesNamesTableIfNotExists();
-  console.log("populating countryNames from coutries table");
+  // console.log("populating countryNames from coutries table");
   // await countriesService.dbAssistance.populateCountryNamesFromCountriesTable();
-  console.log("finished populating countryNames from coutries table");
+  // console.log("finished populating countryNames from coutries table");
   console.log("populating data from text file to db");
   let finished;
+  let done = 0;
   do {
     finished =
       await countriesService.dbAssistance.populateDatabaseWithNextNumCountries(
         5000
       );
+    done++;
+    console.log(done * 5000, "entries done");
   } while (!finished);
   console.log("finished populating data from text file to db");
 };

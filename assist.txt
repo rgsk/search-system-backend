@@ -1,6 +1,8 @@
 // remote
 PORT=8000
 POSTGRES_CONNECTION_URL=postgres://xwakzewb:zxlW9R3U3Yu4LG-YZiKoTVgq6goSEeeF@queenie.db.elephantsql.com/xwakzewb
+// remote 2
+postgres://tqjfwkvr:ppJ7M4y43HMmVhO5GI7cFktNrcXQjfoq@castor.db.elephantsql.com/tqjfwkvr 
 
 // local 
 PORT=8000
