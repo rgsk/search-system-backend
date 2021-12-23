@@ -3,7 +3,7 @@ import { countriesService } from "../services/countries.service";
 import { trieCpp } from "../trieCpp";
 import fs from "fs";
 import path from "path";
-import { TreeSet } from "jstreemap";
+import { TreeMultiSet } from "jstreemap";
 const filePath = path.join(path.resolve(), "input.txt");
 // console.log(filePath);
 export class TrieTest {
@@ -44,9 +44,9 @@ export class TrieTest {
     console.log(values);
   }
   async cpp() {
-    const countries = await countriesService.fetchNumCountriesFromDB(1000000);
+    const countries = await countriesService.fetchCountriesFromDB();
     // console.log(data);
-    const countryNames = countries.map((c) => c.name_alt);
+    const countryNames = countries.map((c) => c.name);
     // console.log(countryNames)
     // const data = fs.readFileSync(filePath);
     // console.log(data.toString());
@@ -65,21 +65,22 @@ export class TrieTest {
     // console.log(trieCpp.getMatches("raman"));
   }
   async set() {
-    let set = new TreeSet();
-    // const names = [
-    //   "Rahul",
-    //   "Mehak",
-    //   "Aman",
-    //   "Pankaj",
-    //   "Manu",
-    //   "Vishesh",
-    //   "Rama",
-    //   "Ramaan Gupta",
-    // ];
-    const countries = await countriesService.fetchNumCountriesFromDB(1000000);
-    // console.log(countries);
-    const countryNames = countries.map((c) => c.name);
-    for (let name of countryNames) {
+    let set = new TreeMultiSet();
+    const names = [
+      "Rahul",
+      "Mehak",
+      "Aman",
+      "Pankaj",
+      "Manu",
+      "Vishesh",
+      "Rama",
+      "Ramaan Gupta",
+      "Rahul",
+    ];
+    // const countries = await countriesService.fetchNumCountriesFromDB(1000000);
+    // // console.log(countries);
+    // const countryNames = countries.map((c) => c.name);
+    for (let name of names) {
       set.add(name);
     }
     let prefix = "Ra";
@@ -87,8 +88,8 @@ export class TrieTest {
       prefix.substring(0, prefix.length - 1) +
       String.fromCharCode(prefix[prefix.length - 1].charCodeAt(0) + 1);
     for (
-      let it = set.lowerBound(prefix);
-      !it.equals(set.upperBound(upper));
+      let it = set.lowerBound(String.fromCharCode(0));
+      !it.equals(set.upperBound(String.fromCharCode(255)));
       it.next()
     ) {
       console.log(it.key);

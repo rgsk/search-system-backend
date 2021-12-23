@@ -6,9 +6,9 @@
   "gypfile": true,
   "type": "module",
   "scripts": {
-    "start": "node --experimental-specifier-resolution=node dist",
+    "start": "node --experimental-specifier-resolution=node --max-old-space-size=8192 dist",
     "build": "tsc",
-    "dev": "nodemon --experimental-specifier-resolution=node dist",
+    "dev": "nodemon --experimental-specifier-resolution=node --max-old-space-size=8192 dist",
     "watch": "tsc -w",
     "cpp": "yarn install"
   },

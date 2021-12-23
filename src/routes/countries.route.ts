@@ -6,8 +6,8 @@ countriesRouter.get("/count", countriesController.count);
 countriesRouter.post("/populate", countriesController.populate);
 countriesRouter.get("/search", countriesController.getCountriesWithPrefix);
 countriesRouter.get(
-  "/search/treeSet",
-  countriesController.getCountriesWithPrefixUsingTreeSet
+  "/search/treeMap",
+  countriesController.getCountriesWithPrefixUsingTreeMap
 );
 countriesRouter.post("/", countriesController.create);
 countriesRouter.post("/flush", countriesController.flushCountriesTable);

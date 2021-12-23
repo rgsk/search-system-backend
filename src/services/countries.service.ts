@@ -4,7 +4,7 @@ import path from "path";
 import lineReader from "line-reader";
 import { Trie } from "../Datastructures/Trie/Trie";
 import { trieCpp } from "../trieCpp";
-import { TreeSet } from "jstreemap";
+import { TreeMultiMap } from "jstreemap";
 
 const allCountriesTxtFilePath = path.join(path.resolve(), "allCountries.txt");
 // console.log(allCountriesTxtFilePath);
@@ -13,7 +13,7 @@ lineReader.open(allCountriesTxtFilePath, (err, reader) => {
   allCountriesTxtReader = reader;
 });
 let countriesTrie = new Trie();
-let countriesSet = new TreeSet<string>();
+let countriesMap = new TreeMultiMap<string, number>();
 //
 export const countriesService = {
   getAll: async ({ page, limit }: { page: number; limit: number }) => {
@@ -39,17 +39,17 @@ export const countriesService = {
     const count = await db(Country.tableName).count("uuid");
     return +count[0].count;
   },
-  treeSet: {
-    loadDataIntoCountriesSet: async () => {
-      const countries = await countriesService.fetchNumCountriesFromDB();
+  treeMap: {
+    loadDataIntoCountriesMap: async () => {
+      console.log("fetching countries from database");
+      const countries = await countriesService.fetchCountriesFromDB();
       // console.log(countries);
 
-      const countryNames = countries.map((c) => c.name);
-      console.log("populating set");
-      for (let name of countryNames) {
-        countriesSet.add(name);
+      console.log("populating map");
+      for (let entry of countries) {
+        countriesMap.set(entry.name!, +entry.uuid!);
       }
-      console.log("finished populating set");
+      console.log("finished populating map");
     },
     getCountriesWithPrefix: async ({
       prefix,
@@ -62,18 +62,34 @@ export const countriesService = {
       limit: number;
       all: boolean;
     }) => {
-      const matches: string[] = [];
-      let upper =
-        prefix.substring(0, prefix.length - 1) +
-        String.fromCharCode(prefix[prefix.length - 1].charCodeAt(0) + 1);
+      const matches: any[] = [];
+      let upper = prefix
+        ? prefix.substring(0, prefix.length - 1) +
+          String.fromCharCode(prefix[prefix.length - 1].charCodeAt(0) + 1)
+        : String.fromCharCode(1000);
+      prefix = prefix || String.fromCharCode(0);
+      let startIndex = (page - 1) * limit;
+      let endIndex = page * limit;
+      let curIndex = 0;
+
       for (
-        let it = countriesSet.lowerBound(prefix);
-        !it.equals(countriesSet.upperBound(upper));
+        let it = countriesMap.lowerBound(prefix);
+        !it.equals(countriesMap.upperBound(upper));
         it.next()
       ) {
-        matches.push(it.key);
+        if (all) {
+          matches.push({ name: it.key, uuid: it.value });
+        } else {
+          if (curIndex >= startIndex && curIndex < endIndex) {
+            matches.push({ uuid: it.value, name: it.key });
+          }
+        }
+        curIndex++;
       }
-      return matches;
+      return {
+        total: curIndex,
+        countries: matches,
+      };
     },
   },
   dbAssistance: {
@@ -104,17 +120,25 @@ export const countriesService = {
       all: boolean;
     }) => {
       // select *, count(*) over() from names where name like 'A%' limit 100
-      let query = `select  *, count(*) over() from names where name like ?`;
+      const query = `select  *, count(*) over() from names where name like ?`;
+      let pageinatedQuery = query;
       if (!all) {
-        query += ` offset ${(page - 1) * limit} limit ${limit}`;
+        pageinatedQuery += ` offset ${(page - 1) * limit} limit ${limit}`;
       }
-      const res = await db.raw(query, [`${prefix}%`]);
+      const res = await db.raw(pageinatedQuery, [`${prefix}%`]);
       const countries = res.rows.map((c) => {
-        return { uuid: c.uuid, name: c.name };
+        return { uuid: +c.uuid, name: c.name };
       });
+      let total = +res.rows[0]?.count || 0;
+      if (!all && res.rows.length == 0) {
+        const res2 = await db.raw(
+          `select count(*) from names where name like ?`,
+          [`${prefix}%`]
+        );
+        total = res2.rows[0].count;
+      }
 
-      const total = res.rows[0]?.count || 0;
-      return { countries, total };
+      return { total, countries };
     },
     populateDatabaseWithNextNumCountries: async (num: number) => {
       const fetchedCountries: Country[] = [];
@@ -152,40 +176,7 @@ export const countriesService = {
       return false;
     },
   },
-  cpp: {
-    loadDataIntoCountriesTrie: async () => {
-      const countries: Country[] = await db
-        .select("name")
-        .from(Country.tableName)
-        .limit(10);
-      // console.log(countries);
-      const countryNames = countries.map((c) => c.name);
-      trieCpp.populate(countryNames);
-      return {
-        message: "populated countryTrie with country names",
-        totalRows: countries.length,
-      };
-    },
 
-    getCountriesWithPrefix: async ({
-      prefix,
-      page,
-      limit,
-    }: {
-      prefix: string;
-      page: number;
-      limit: number;
-    }) => {
-      const countryNames = trieCpp.getMatches(prefix);
-      // const countries: Country[] = await db
-      //   .select("*")
-      //   .from(Country.tableName)
-      //   .whereIn("name", countryNames)
-      //   .limit(limit)
-      //   .offset((page - 1) * limit);
-      return countryNames;
-    },
-  },
   loadDataIntoCountriesTrie: async () => {
     countriesTrie = new Trie();
     const countries: Partial<Country>[] = await db
@@ -265,8 +256,10 @@ export const countriesService = {
     await db(Country.tableName).insert(fetchedCountries);
     return false;
   },
-  fetchNumCountriesFromDB: async (num: number = 0) => {
-    const countries: Country[] = await db.select("name").from("countries");
+  fetchCountriesFromDB: async (num: number = 0) => {
+    const countries: Partial<Country>[] = await db
+      .select("uuid", "name")
+      .from("names");
     // .limit(num);
     return countries;
   },
@@ -295,16 +288,13 @@ export const countriesService = {
         console.log(i);
         await add();
       } catch (err) {
-        // return {
-        //   countries: fetchedCountries,
-        //   finished: true,
-        // };
+        return {
+          countries: fetchedCountries,
+          finished: true,
+        };
       }
     }
-    function timeout(ms) {
-      return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-    await timeout(5000);
+
     return {
       countries: fetchedCountries,
       finished: false,

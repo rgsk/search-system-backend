@@ -37,7 +37,7 @@ app.listen(PORT, async () => {
   // await testing();
 
   console.log("listening on PORT: " + PORT);
-  countriesService.treeSet.loadDataIntoCountriesSet();
+  // countriesService.treeMap.loadDataIntoCountriesMap();
 });
 const populateDatabase = async () => {
   await countriesService.dropTableIfExists();
@@ -57,15 +57,15 @@ const populateCountryNamesTable = async () => {
   console.log("populating countryNames from coutries table");
   // await countriesService.dbAssistance.populateCountryNamesFromCountriesTable();
   console.log("finished populating countryNames from coutries table");
-  // console.log("populating data from text file to db");
-  // let finished;
-  // do {
-  //   finished =
-  //     await countriesService.dbAssistance.populateDatabaseWithNextNumCountries(
-  //       5000
-  //     );
-  // } while (!finished);
-  // console.log("finished populating data from text file to db");
+  console.log("populating data from text file to db");
+  let finished;
+  do {
+    finished =
+      await countriesService.dbAssistance.populateDatabaseWithNextNumCountries(
+        5000
+      );
+  } while (!finished);
+  console.log("finished populating data from text file to db");
 };
 const testing = async () => {
   const trieTest = new TrieTest();

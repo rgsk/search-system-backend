@@ -14,7 +14,7 @@ export const countriesController = {
     const prefix = (req.query.name as string) || "";
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-    const all = !!req.query.all;
+    const all = req.query.all !== "false";
     const result = await countriesService.dbAssistance.getCountriesWithPrefix({
       prefix,
       page,
@@ -23,21 +23,18 @@ export const countriesController = {
     });
     res.json(result);
   },
-  async getCountriesWithPrefixUsingTreeSet(req: Request, res: Response) {
+  async getCountriesWithPrefixUsingTreeMap(req: Request, res: Response) {
     const prefix = (req.query.name as string) || "";
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-    const all = !!req.query.all;
-    const countries = await countriesService.treeSet.getCountriesWithPrefix({
+    const all = req.query.all !== "false";
+    const result = await countriesService.treeMap.getCountriesWithPrefix({
       prefix,
       page,
       limit,
       all,
     });
-    res.json({
-      total: countries.length,
-      [Country.tableName]: countries,
-    });
+    res.json(result);
   },
   async create(req: Request, res: Response) {
     const uuid: number = req.body.uuid;
