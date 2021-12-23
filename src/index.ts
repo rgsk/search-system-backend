@@ -38,7 +38,7 @@ app.listen(PORT, async () => {
 
   console.log("listening on PORT: " + PORT);
   // countriesService.treeMap.loadDataIntoCountriesMap();
-  // countriesService.cppMap.loadDataIntoCppMap();
+  countriesService.cppMap.loadDataIntoCppMap();
   // populateCountryNamesTable();
 });
 const populateDatabase = async () => {
