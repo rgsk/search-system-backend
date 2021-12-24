@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 app.get("/", (req, res) => {
   res.json({
-    message: "Welcome to Growth School Assignment",
+    message: "Welcome to Search suggestion server",
   });
 });
 app.use("/countries", countriesRouter);
